@@ -1,8 +1,9 @@
 {
-  "name": "app",
+  "name": "zelool-wese",
   "private": true,
   "scripts": {
     "build": "react-router build",
+    "test": "node --test \"app/lib/**/*.test.js\"",
     "dev": "shopify app dev",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
@@ -59,11 +60,9 @@
     "typescript": "^5.9.3",
     "vite": "^6.3.6"
   },
-  "workspaces": {
-    "packages": [
-      "extensions/*"
-    ]
-  },
+  "workspaces": [
+    "extensions/*"
+  ],
   "trustedDependencies": [
     "@shopify/plugin-cloudflare"
   ],
@@ -78,5 +77,6 @@
     "overrides": {
       "qs": "^6.16.0"
     }
-  }
+  },
+  "author": "Deftsoft"
 }

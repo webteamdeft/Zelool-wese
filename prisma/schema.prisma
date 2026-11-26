@@ -32,3 +32,65 @@ model Session {
   refreshToken        String?
   refreshTokenExpires DateTime?
 }
+
+// Single-row settings (id = "default").
+model Settings {
+  id               String   @id @default("default")
+  markupPercent    Float    @default(85)
+  feedUrl          String   @default("")
+  locationId       String   @default("")
+  // What to do with an ACTIVE product whose stock reaches zero:
+  // "draft" = move it back to draft, "keep" = leave it published.
+  outOfStockAction String   @default("draft")
+  updatedAt        DateTime @updatedAt
+}
+
+// One row per frame, keyed by SKU. Mirrors what is in Shopify.
+model Frame {
+  id                     String    @id @default(cuid())
+  sku                    String    @unique
+  name                   String
+  description            String?
+  specs                  String    @default("{}")
+  images                 String    @default("[]")
+  sourcePrice            Float
+  sourceStock            Int       @default(0)
+  price                  Float     // price pushed to Shopify
+  priceLocked            Boolean   @default(false)
+  stock                  Int       @default(0) // quantity pushed to Shopify (never negative)
+  shopifyProductId       String?
+  shopifyVariantId       String?
+  shopifyInventoryItemId String?
+  shopifyStatus          String?   // DRAFT | ACTIVE | ARCHIVED
+  contentHash            String?
+  inSource               Boolean   @default(true)
+  lastSyncedAt           DateTime?
+  lastError              String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+}
+
+model SyncRun {
+  id         String    @id @default(cuid())
+  trigger    String    // manual | scheduled
+  status     String    @default("running") // running | completed | completed_with_errors | failed
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  created    Int       @default(0)
+  updated    Int       @default(0)
+  skipped    Int       @default(0)
+  failed     Int       @default(0)
+  logs       SyncLog[]
+}
+
+model SyncLog {
+  id        String   @id @default(cuid())
+  runId     String
+  run       SyncRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  level     String   // info | warn | error
+  sku       String?
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([runId])
+}
